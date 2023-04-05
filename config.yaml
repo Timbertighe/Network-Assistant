@@ -1,0 +1,76 @@
+---
+# Note: indendentation is important
+# Verify formatting here: https://yaml-online-parser.appspot.com/
+
+# Global settings, applying to the web server
+global:
+  web_port: 8080
+  flask_debug: False
+  db_server: 'SQL-Server'
+  db_name: 'SQL_DB'
+  chatbot_name: 'Chat Bot'
+  secrets_file: 'core\\secrets.yaml'
+  
+
+# Enabled plugins
+plugins:
+  mist:
+    name: 'Mist Webhooks'
+    route: 'mist'
+    class: MistHandler
+    module: plugins.mist.misthandler
+  junos:
+    name: 'Junos Webhooks'
+    route: 'junos'
+    class: JunosHandler
+    module: plugins.junos.junos
+  loginsight:
+    name: 'Log Insight'
+    route: 'loginsight'
+    class: LogInsight
+    module: plugins.loginsight.log_insight
+  cloudflare:
+    name: 'Cloud Flare'
+    route: 'cloudflare'
+    class: CloudFlareHandler
+    module: plugins.cloudflare.cloudflare
+
+
+# MS Graph API settings
+graph:
+  base_url: 'https://graph.microsoft.com/v1.0/'
+  chat_id: '19:xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx@thread.v2'
+  key_id: '123'
+  chat_url: 'https://my-domain.com/chat'
+  token_file: 'token.txt'
+
+
+# MS Teams Settings
+teams:
+  app_id: 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'
+  secret: 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'
+  tenant: 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'
+  user: 'account@my-domain.com'
+  user_id: 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'
+  public_key: 'core\\public.pem'
+  private_key: 'core\\private.pem'
+  sub_all: False
+  approved_ids:
+    - '19:xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx@thread.v2'
+    - '19:xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx@unq.gbl.spaces'
+    - '19:xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx@unq.gbl.spaces'
+
+
+# NLP Settings
+language:
+  threshold: 0.55
+  log_unknown: True
+
+
+# SMTP server settings
+smtp:
+  server: 'smtp.my-domain.com'
+  port: 25
+  sender: 'me@my-domain.com'
+  receivers:
+    - 'you@my-domain.com'

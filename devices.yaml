@@ -1,0 +1,19 @@
+---
+# Note: indendentation is important
+# Verify formatting here: https://www.yamllint.com/
+# User lower case here
+
+# A list of sites, and devices within them
+site: hq
+devices: 
+  - hq-fw01
+  - hq-fw02
+  - hq-rtr01
+  - hw-sw01
+
+---
+site: branch
+devices:
+  - branch-fw01
+  - branch-sw01
+
