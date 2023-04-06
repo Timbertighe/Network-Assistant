@@ -4,6 +4,9 @@
     Better handling of fields in the webhook
     Restructured the class for better code flow
     Better handling of unknown or missing fields in the webhook
+    
+### SQL
+    Added an SQL creation script
 
 ## 0.9
 ### General Improvements
