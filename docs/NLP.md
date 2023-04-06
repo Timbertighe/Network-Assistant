@@ -45,64 +45,91 @@ python -m spacy download en_core_web_md
     Contains the ChatNlp class
     This is instantiated during startup
     
-### Initialization
-    (1) Sets a threshold that needs to be reached to be considered a match (set in the config file)
-    (2) Loads the spaCy medium model
-    (3) Adds a custom entity ruler into the pipeline
-        This includes custom words, such as device names
-        This is taken from devices.yaml
-        Also loads custom ents from plugins, if applicable (checks if 'entities' exists in the plugin handler class)
-    (4) Loads some 'known_phrases', a list of dictionary items that contain a phrase and matching function
-        During initialization, a new list of dictionaries (called 'docs') is created. The only difference is that the phrase has been replaced with spacy docs.
-        These are 'global' phrases, which are not from plugins
-    (5) Loads additional phrases from plugins
-        Plugins don't need to have phrases, they are optional
-        These phrases include the plugin's module name and function to call when the phrase is matched
+### ChatNLP class
+    Uses the spaCy library for NLP processing
+    Adds custom ENTs to the pipeline
+    Cleans up input (removes stop words, processes lemma, etc)
+    Logs requests that couldn't be recognised for later improvement
+    Plugin-aware, so plugins can have phrases too
+    
+#### Initialization
+    Loads the similarity threshold value
+        This is how similar a sentence has to be to match a known phrase
+    Loads the spaCy NLP model
+    Defines a new entity ruler for custom words
+    Creates a list of doc containers with known phrases, and their
+        corresponding functions
 
-### cleanup_text()
-    Arguments: 
-        'text' (string; the raw text from the user)
-    Returns: 
-        A string; The raw text after stop words, punctuation, and pronouns are removed
-    Purpose:
-        This improves matching by removing parts of the sentence that are not needed
-        Removes DEVICE and TIME ents from the string (this improves phrase matching); These can still be used after matching is complete
+#### cleanup_text()
+    Convert a phrase to its simplest form
 
-### log_unknown()
-    Arguments:
-        'text' (string; the raw text from the user)
-        'processed_doc' (spacy doc object; The text from the user that has been processed by the spacy pipeline)
-    Returns:
-        None
-    Purpose:
-        When there's no match to a known phrase, this function can optionally be used to log this information
-        This is logged to a text file, and contains the given phrase, the cleaned text, the closest match, and the similarity value to the closest match
-        If there is a typo, there will be no vectors, so the similarity is set to zero
+    Remove stop words, punctuation, and pronouns
+    Convert tokens to their lemma form
 
-### chatbot()
-    Arguments:
-        'user_text' (string; the raw text from the user)
-    Returns:
-        'similar_list' (dict; Contains the doc object for the user's phrase, similarity score, and associated module/function)
-    Purpose:
-        This is the main chatbot function. It is called when someone sends a message to the chatbot in Teams
-        This will first call cleanup_text() to sanatize the given phrase, then create a spacy doc object to represent it
-        It will then loop through the 'docs' list to find a match; This list contains doc objects for known phrases
-        It will extract the doc object that is most similar, as long as it is over the similarity threshold
-        If there is a typo, this will be detected as there are no vectors on the token; This causes the similarity to be zero
-        If there is no match, the unknown phrase can be optionally logged (depending on whether the 'log_unknown' option is enabled)
+    Parameters
+    ----------
+    phrase : str
+        The user's phrase that we want to try to match against
+            a known phrase
+
+    Raises
+    ------
+    None
+
+    Returns
+    -------
+    phrase : str
+        The phrase after it has been cleaned up
+        This may return the original phrase
+
+#### log_unknown()
+    Log details of a phrase that couldn't be understood
+
+    Sometimes phrases can't be understood
+    This logs this information to improve on later
+    A new log file is created every month
+
+    Parameters
+    ----------
+    phrase : str
+        The user's original phrase
+
+    processed_doc : spaCy doc container
+        The doc after processing
+
+    Raises
+    ------
+    None
+
+    Returns
+    -------
+    None
+
+#### chatbot()
+    Define the chatbot's response to a phrase
+
+    Uses the cleanup_text() method to get a simpler phrase
+        This improves matching against known phrases
+    Checks for a match by comparing the similarity of the cleaned phrase
+        to known phrases
+
+    Parameters
+    ----------
+    phrase : str
+        The user's original phrase
+
+    Raises
+    ------
+    None
+
+    Returns
+    -------
+    match : dict
+        Details of the matching phrase (eg, function to call)
+    False: boolean
+        If there was a problem
         
-### dev_list()
-    Arguments:
-        None
-    Returns:
-        'patterns' (a list of dictionaries)
-        Contains NLP patterns to add to the entity ruler
-    Purpose:
-        Uses the devices.yaml file to add custom words (eg, device names) to the NLP pipeline
-        This is so the chatbot can understand device names as 'device' and not jibberish
-        
-### get_ents()
+#### get_ents()
     Arguments:
         'message' (the original message sent to the chatbot)
     Returns:
@@ -111,16 +138,41 @@ python -m spacy download en_core_web_md
         Collects entities from the given message
         Returns them to the calling function, so other functions can make use of them as they see fit
         
-### load_ents()
-    Arguments:
-        ent_list - A list of custom entities
-            A list of PATTERNs is stored under a LABEL
-    Returns:
-        patterns - A dictionary of patterns and labels
-    Purpose:
-        Creates a list of dictionaries
-        Each dictionary is a PATTERN/LABEL
-        This can be loaded into the entity ruler
+### load_devices()
+    Loads a list of devices and sites into a list
+    These are formatted as entities, so they can be handled by spaCy
+
+        Parameters:
+            filename : str
+                The filename containing the list of devices and sites
+
+        Raises:
+            Exception
+                When there's a problem loading the file
+            Exception
+                When there's a problem loading YAML content
+
+        Returns:
+            patterns : list
+                A list of dictionaries
+                This is a list of words that will be added to the pipeline
+            False : boolean
+                If there is a problem loading the file or YAML
+        
+### load_entities()
+    Loads custom words as entities, so they can be handled by spaCy
+
+        Parameters:
+            ent_list : str
+                The list of custom words
+
+        Raises:
+            None
+
+        Returns:
+            patterns : list
+                A list of dictionaries
+                This is a list of words that will be added to the pipeline
         
         
 &nbsp;<br>
