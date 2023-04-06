@@ -1,12 +1,23 @@
 # Change Log
 
 &nbsp;<br>
+## 0.91
+### General
+    Improved docstrings on many files
+    Moved nlp into a separate package
+    Cleaned up the ChatNlp class to startup functions are separate (they don't need to be in the class)
+
+
+&nbsp;<br>
 ## 0.9
 ### Platform Improvements
     Improved docstrings across multiple modules
     Remmoved the webhook secret from global config, as it is now per-plugin
     Revamped the chat subscription module in teamschat.py, to be class based and threaded (startup performance imporovement)
     Removed hardcoded filenames in several modules (moved to global config)
+    
+### General
+    Recreated the GitHub repository
 
 
 &nbsp;<br>
