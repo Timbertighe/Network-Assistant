@@ -38,13 +38,93 @@ Handles webhooks from the CloudFlare platform
     The CloudFlareHandler class that handles events as they are received
     
 #### __init__()
-    Loads the config file
-    
-#### handle_event(raw_response, src)
+        Constructs the class
+
+        Loads the configuration file
+        Sets the table to '', as there is no SQL yet
+
+        Parameters
+        ----------
+        None
+
+        Raises
+        ------
+        None
+
+        Returns
+        -------
+        None
+        
+#### timestamp()
+        Reformat the timestamp to make it nicer
+
+        The timestamp field in the webhook can vary, depending on the alert
+        Extracts the timestamp from the webhook
+        Converts to a datetime object
+        Converts to the local timezone (original is in UTC)
+        Simplifies the time format
+
+        Parameters
+        ----------
+        json : json data
+            The webhook (or part of it) that contains the timestamp
+
+        Raises
+        ------
+        None
+
+        Returns
+        -------
+        timestamp : str
+            The simplified timestamp
+            
+#### fields()
+        Extract fields from the webhook
+
+        Parameters
+        ----------
+        json : json data
+            The webhook (or part of it) that contains the fields we need
+
+        Raises
+        ------
+        None
+
+        Returns
+        -------
+        fields : dict
+            A dictionary of fields we can use
+            
+#### handle_event()
     Handles a webhook when it arrives
         'raw_response' is the raw webhook
         'src' is the IP that sent the webhook
     Creates a dictionary of useful information
     Creates a message for the user
     Sends the message to teams
-    
+
+#### authenticate()
+        Authenticate a webhook
+
+        Checks that the webhook has been sent from a reliable source
+        Checks that the correct header exists in the webhook
+        Compares the password to the one we have in our config
+        CloudFlare sends the passwords in plain text
+
+        Parameters
+        ----------
+        request : requests object
+            The raw webhook, including headers
+        plugin : list
+            The list of plugin configuration
+
+        Raises
+        ------
+        None
+
+        Returns
+        -------
+        True : Boolean
+            If the webhook is authenticated
+        False : Boolean
+            If authentication failed
