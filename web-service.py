@@ -37,7 +37,7 @@ from core import azureauth
 from core import crypto
 from core import parse_chats
 from core import teamschat
-from core import nlp
+from nlp import nlp
 
 from config import GLOBAL, GRAPH, TEAMS
 from config import PLUGINS, plugin_list
