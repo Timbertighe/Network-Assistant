@@ -35,7 +35,6 @@ Author:
 
 from core import azureauth
 from core import crypto
-from core import parse_chats
 from core import teamschat
 from nlp import nlp
 
@@ -217,11 +216,8 @@ def chat():
 
             # Check that this sender is authorized, and parse the message
             if chat_msg_id in APPROVED_LIST:
-                parse_chats.parse(
-                    message=message,
-                    chat_nlp=chat_nlp,
-                    chat_id=chat_msg_id
-                )
+                chat_nlp.parse(phrase=message, chat_id=chat_msg_id)
+
             else:
                 print(termcolor.colored(
                     f"User {name} is not authorized",
