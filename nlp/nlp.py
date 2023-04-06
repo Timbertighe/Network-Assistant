@@ -6,8 +6,8 @@ Uses NLP techniques to determine their meaning
 Uses rule-based matching to execute an applicable action
 
 Modules:
-    3rd Party: spacy, datetime, termcolor, yaml
-    Custom: config
+    3rd Party: spacy, datetime, termcolor, yaml, importlib
+    Custom: config, teamschat, parse_chats
 
 Classes:
 
@@ -44,9 +44,12 @@ import spacy
 from datetime import datetime
 import termcolor
 import yaml
+import importlib
 
 from config import LANGUAGE
 from config import plugin_list
+from core import teamschat
+import nlp.personality as personality
 
 
 # Load a list of 'global' phrases we have
@@ -68,11 +71,6 @@ known_phrases = [
         "module": "global"
     },
     {
-        "phrase": "weather city",
-        "function": "get_weather",
-        "module": "global"
-    },
-    {
         "phrase": "Good morning",
         "function": "greeting",
         "module": "global"
@@ -88,10 +86,20 @@ known_phrases = [
         "module": "global"
     },
     {
+        "phrase": "tell time",
+        "function": "day_time",
+        "module": "global"
+    },
+    {
         "phrase": "real person",
         "function": "are_you_human",
         "module": "global"
     },
+    {
+        "phrase": "thank",
+        "function": "thank",
+        "module": "global"
+    }
 ]
 
 
@@ -232,6 +240,8 @@ class ChatNlp():
         Process a given phrase, and return a function to run
     get_ents()
         Get a list of entities from a phrase
+    parse()
+        Takes a phrase from a user and responds
     """
 
     def __init__(self):
@@ -329,8 +339,9 @@ class ChatNlp():
             This may return the original phrase
         """
 
-        # Create a doc with the given phrase (converted to lower case)
+        # Simple cleanup (lower case, remove question marks)
         phrase = phrase.lower()
+        phrase = phrase.replace("?", "")
         doc = self.nlp_spacy(phrase)
 
         # Remove any device names and times
@@ -523,3 +534,49 @@ class ChatNlp():
             ent_list.append(entity)
 
         return ent_list
+
+    def parse(self, phrase, chat_id):
+        """Parse a phrase and find a function to call
+
+        Parameters
+        ----------
+        phrase : str
+            The user's original phrase
+        chat_id : str
+            The Teams chat Id to reply to
+
+        Raises
+        ------
+        None
+
+        Returns
+        -------
+        match : dict
+            Details of the matching phrase (eg, function to call)
+        False: boolean
+            If there was no matching response
+        """
+
+        # Strip out any HTML 'p' tags
+        phrase = phrase.replace("<p>", "").replace("</p>", "").lower()
+
+        # Find a match for this phrase
+        response = self.chatbot(phrase)
+
+        # If there is no matching response, write back to the user
+        if not response:
+            teamschat.send_chat("Sorry, I don't understand", chat_id)
+            return False
+
+        # If there is a phrase match, we need to call the associated function
+        if response['module'] == 'global':
+            function = getattr(personality, response['function'])
+
+        # If the module is a plugin, import the module and set the function
+        else:
+            module = importlib.import_module(response['module'])
+            function = getattr(module, response['function'])
+
+        # Call the function, passing the list of entities and the phrase
+        entities = self.get_ents(phrase)
+        function(chat_id, ents=entities, message=phrase)
