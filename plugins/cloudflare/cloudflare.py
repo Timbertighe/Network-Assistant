@@ -6,7 +6,7 @@ Confirms webhook authenticity
 Sends alerts on Teams when required
 
 Modules:
-    3rd Party: termcolor, dateutil, tzlocal, pytz
+    3rd Party: termcolor, dateutil, tzlocal, pytz, datetime
     Custom: teamschat, plugin
 
 Classes:
@@ -40,6 +40,7 @@ import termcolor
 from dateutil.parser import parse
 from tzlocal import get_localzone
 from pytz import timezone
+from datetime import datetime
 
 from core import teamschat
 from core import plugin
@@ -73,13 +74,16 @@ class CloudFlareHandler(plugin.PluginTemplate):
 
     authenticate()
         Authenticate the webhook
+
+    log()
+        Send the alert to teams and write to SQL
     """
 
     def __init__(self):
         """Constructs the class
 
         Loads the configuration file
-        Sets the table to '', as there is no SQL yet
+        Sets the SQL table
 
         Parameters
         ----------
@@ -95,7 +99,7 @@ class CloudFlareHandler(plugin.PluginTemplate):
         """
 
         super().__init__(LOCATION)
-        self.table = ""
+        self.table = self.config['config']['sql_table']
 
     def timestamp(self, json):
         """Reformat the timestamp to make it nicer
@@ -123,13 +127,18 @@ class CloudFlareHandler(plugin.PluginTemplate):
 
         # Reformat the timestamp to make it nicer
         # This field varies depending on the webhook
-        if 'timestamp' in json:
-            timestamp = parse(json['timestamp'])
+        if 'timestamp' in json['data']:
+            timestamp = parse(json['data']['timestamp'])
             timestamp = timestamp.astimezone(timezone(str(get_localzone())))
             timestamp = timestamp.strftime("%H:%M:%S")
 
-        if 'time' in json:
-            timestamp = parse(json['timestamp'])
+        elif 'time' in json['data']:
+            timestamp = parse(json['data']['time'])
+            timestamp = timestamp.astimezone(timezone(str(get_localzone())))
+            timestamp = timestamp.strftime("%H:%M:%S")
+
+        elif 'time' in json:
+            timestamp = parse(json['time'])
             timestamp = timestamp.astimezone(timezone(str(get_localzone())))
             timestamp = timestamp.strftime("%H:%M:%S")
 
@@ -141,7 +150,7 @@ class CloudFlareHandler(plugin.PluginTemplate):
     def fields(self, json):
         """Extract fields from the webhook
 
-                Parameters
+        Parameters
         ----------
         json : json data
             The webhook (or part of it) that contains the fields we need
@@ -215,11 +224,9 @@ class CloudFlareHandler(plugin.PluginTemplate):
         None
         """
 
-        # Log to terminal
-        print(termcolor.colored(f"raw message: {raw_response}", "yellow"))
-
         # Focus on the important part of the webhook
         alert = raw_response['data']
+        print(termcolor.colored(f"CloudFlare Alert: {alert}", "yellow"))
 
         # Reformat the timestamp to make it nicer
         timestamp = self.timestamp(alert)
@@ -245,10 +252,7 @@ class CloudFlareHandler(plugin.PluginTemplate):
                 {fields['pool']} </span></b> at {fields['time']}"
 
         # Send the main message
-        teamschat.send_chat(
-            message,
-            self.config['config']['chat_id']
-        )
+        self.log(message=message, event=fields)
 
         # Create the health message, if there is anything to share
         if fields['health'] != '':
@@ -269,10 +273,7 @@ class CloudFlareHandler(plugin.PluginTemplate):
                     {fields['health']}</span></b>"
 
             # Send the health status
-            teamschat.send_chat(
-                health,
-                self.config['config']['chat_id']
-            )
+            self.log(message=health, event=fields)
 
     def authenticate(self, request, plugin):
         """Authenticate a webhook
@@ -312,3 +313,63 @@ class CloudFlareHandler(plugin.PluginTemplate):
             return True
         else:
             return False
+
+    def log(self, message, event):
+        """Send alert and log to SQL
+
+        Sends a message to teams
+        Logs interesting fields to SQL
+
+        Parameters
+        ----------
+        message : str
+            The message to send to teams
+        event : dict
+            Interesting fields to log to SQL
+
+        Raises
+        ------
+        Exception
+            If there were problems sending to Teams
+
+        Returns
+        -------
+        None
+        """
+
+        # Log to the terminal
+        print(termcolor.colored(f"CloudFlare event: {event}", "yellow"))
+
+        # Send to teams, and get the Teams ID
+        try:
+            chat_id = teamschat.send_chat(
+                message,
+                self.config['config']['chat_id']
+            )['id']
+
+        # If there was a problem, log to terminal
+        except Exception as err:
+            print(termcolor.colored("Error with Teams chat ID", "red"))
+            print(termcolor.colored(err, "red"))
+            return
+
+        # Collect the fields to write to SQL
+        date = datetime.now().date()
+        time = datetime.now().time().strftime("%H:%M:%S")
+        fields = {
+            'type': event['type'],
+            'pool': event['pool'],
+            'service': event['service'],
+            'health': event['health'],
+            'reason': event['reason'],
+            'logdate': date,
+            'logtime': time,
+            'source': event['src_ip'],
+            'message': chat_id
+        }
+
+        # Write to SQL
+        self.sql_write(
+            database=self.config['config']['sql_table'],
+            fields=fields
+        )
