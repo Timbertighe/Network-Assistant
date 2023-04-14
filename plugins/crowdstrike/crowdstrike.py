@@ -63,7 +63,8 @@ class CrowdStrikeHandler(plugin.PluginTemplate):
         """Class constructor
 
         Reads config from the config file
-        Gets an SQL table name (none in this version)
+        auth_header and auth_secret are values used to webhook authentication
+        No SQL table yet
 
         Parameters
         ----------
@@ -80,6 +81,8 @@ class CrowdStrikeHandler(plugin.PluginTemplate):
 
         super().__init__(LOCATION)
         self.table = ""
+        self.auth_header = self.config['config']['auth_header']
+        self.auth_secret = self.config['config']['webhook_secret']
 
     def handle_event(self, raw_response, src):
         """Handles a webhook from CrowdStrike
@@ -180,7 +183,6 @@ class CrowdStrikeHandler(plugin.PluginTemplate):
         # Check if there is an authentication header
         if plugin['handler'].auth_header != '':
             # Get the webhook body and the timestamp header
-            print(f'Type: {type(request)}')
             body = request.get_data()
             timestamp = request.headers['X-Cs-Delivery-Timestamp']
 
@@ -188,7 +190,7 @@ class CrowdStrikeHandler(plugin.PluginTemplate):
             message = '{}{}'.format(body.decode('utf-8'), timestamp)
 
             # Get the authentication secret (in the config file)
-            secret = plugin['handler'].webhook_secret.encode()
+            secret = self.auth_secret.encode()
 
             # Generate a signature
             signature = hmac.new(
@@ -201,7 +203,7 @@ class CrowdStrikeHandler(plugin.PluginTemplate):
             b64_sig = base64.b64encode(signature).decode()
 
             # Compare the generated signature with the one that was sent
-            if b64_sig == request.headers['X-Cs-Primary-Signature']:
+            if b64_sig == request.headers[self.auth_header]:
                 return True
 
             # If there is no match (webhook could not be authenticated)
