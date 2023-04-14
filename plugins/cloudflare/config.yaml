@@ -7,3 +7,4 @@ config:
   webhook_secret: 'password'
   auth_header: 'cf-webhook-auth'
   chat_id: '19:xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx@thread.v2'
+  sql_table: 'cf-table'  
