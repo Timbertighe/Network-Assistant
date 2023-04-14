@@ -98,17 +98,30 @@ def error_handler(err, dev, chat_id):
                 "Error, can't upload to FTP, check your credentials",
                 'red'
             ))
+
         else:
+            # Tidy up the error string to send to Teams
+            error_string = repr(err)
+            error_string = error_string.replace("% '", "")
+            error_string = error_string.replace("cli -c \"\'", "")
+            error_string = error_string.replace("\'cli -c", "")
+            error_string = error_string.replace("\"", "<br>")
+            error_string = error_string.replace("\\r\\n\\r\\n", "<br>")
+            error_string = error_string.replace("\\r\\n", "<br>")
+            error = f'<span style=\"color:Red\">{error_string}</span>'
+
             teamschat.send_chat(
                 f"I've hit a snag... I can't upload to FTP. \
                     Does this make sense to you?<br> \
-                    <span style=\"color:Red\">{repr(err)}</span>",
+                    {error}",
                 chat_id
             )
+
             print(termcolor.colored(
                 f"An error has occurred: {repr(err)}",
                 'red'
             ))
+
         dev.close()
 
     elif isinstance(err, jnpr.junos.exception.ConnectRefusedError):
