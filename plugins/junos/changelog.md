@@ -1,4 +1,14 @@
 # Junos Plugin Changelog
+## 0.9.1
+### General Improvements
+    Improved feedback to users when restarting a device or a process
+    Print errors in a better way for troubleshooting
+    Streamlined code
+    
+### Bug Fixes
+    Fixed a bug that prevented FTP from working on certain devices
+    
+
 ## 0.8
 ### Agent
     Renamed the agent script to agent.py
