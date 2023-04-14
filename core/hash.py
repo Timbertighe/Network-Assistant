@@ -22,6 +22,7 @@ Author:
 
 import hmac
 import hashlib
+import termcolor
 
 
 # Authenticate if a message was genuine
@@ -49,6 +50,9 @@ def auth_message(header, secret, webhook):
         if sender_hash == hash:
             return ('success')
         else:
+            print(termcolor.colored("Error validating webhook", "red"))
+            print(termcolor.colored(f"Sender Hash: {sender_hash}", "yellow"))
+            print(termcolor.colored(f"Calculated Hash: {hash}", "yellow"))
             return ('fail')
 
     # If the signature wasn't sent, report it
