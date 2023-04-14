@@ -266,20 +266,10 @@ event-script {
     Purpose:
         Takes a phrase from the user, requesting a reboot
         Finds the device name to reboot; More than one is fine
-        Finds the username/password to connect to the device, using the get_creds() function
+        Finds the username/password to connect to the device
         If there are no additional parameters, reboot() is called to reboot the device(s) immediately
         If there are additional parameters, it will work out a relative or absolute time, and pass this to reboot()
         The reboot() function is run as a separate thread
-    
-#### get_creds()
-    Arguments:
-        'chat_id' - The Teams chat to provide feedback to
-        'device' - The device to connect to
-    Returns:
-        'secret' - A dictionary containing the username and password
-    Purpose:
-        Uses the crypto module to retrieve a password for a device
-        This is required to securely connect to the device to send commands
     
     
 &nbsp;<br>
@@ -311,17 +301,8 @@ event-script {
     Purpose:
         Takes a phrase from the user, requesting a restart of a process
         Finds the device name to connect to; More than one is fine
-        Finds the username/password to connect to the device, using the get_creds() function
+        Finds the username/password to connect to the device
         Determines the name of the process to restart
         The restart() function is run as a separate thread
-    
-#### get_creds()
-    Arguments:
-        'chat_id' - The Teams chat to provide feedback to
-        'device' - The device to connect to
-    Returns:
-        'secret' - A dictionary containing the username and password
-    Purpose:
-        Uses the crypto module to retrieve a password for a device
-        This is required to securely connect to the device to send commands
+
 
