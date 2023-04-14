@@ -7,6 +7,10 @@
     
 ### SQL
     Added an SQL creation script
+    Added SQL logging of events
+    
+### Bug Fixes
+    Fixed a bug with timestamp handling
 
 ## 0.9
 ### General Improvements
