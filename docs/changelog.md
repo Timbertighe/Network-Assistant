@@ -6,6 +6,10 @@
     Improved docstrings on many files
     Moved nlp into a separate package
     Cleaned up the ChatNlp class to startup functions are separate (they don't need to be in the class)
+    
+### Plugins
+    Added a CrowdStrike plugin
+    Just basic alerting at this time
 
 
 &nbsp;<br>
