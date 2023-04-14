@@ -399,6 +399,7 @@ class ChatSubscribe(threading.Thread):
         try:
             sub_list = json.loads(response.content)['value']
         except Exception:
+            print(json.loads(response.content))
             raise Exception("Could not get the subscription list from Graph")
 
         # Check if we already have a subscription to this resource
