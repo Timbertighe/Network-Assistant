@@ -96,6 +96,10 @@ def reboot(device, user, password, chat_id, **kwargs):
                 print("  Pass 'duration' to reboot in a number of minutes")
 
             print(result)
+            teamschat.send_chat(
+                f"{device}: {result}",
+                chat_id
+            )
 
     # Handle Connection error
     except ConnectError as err:
@@ -155,9 +159,10 @@ def nlp_reboot(chat_id, **kwargs):
     if time == '' and date == '':
         for device in device_list:
             print(f"Reboot requested for {device}")
-            secret = get_creds(chat_id=chat_id, device=device)
+            secret = crypto.pw_decrypt(dev_type='junos', device=device)
             if not secret:
-                return
+                print("Could not get credentials")
+                return False
             thread = threading.Thread(
                 target=reboot,
                 kwargs={
@@ -198,9 +203,10 @@ def nlp_reboot(chat_id, **kwargs):
                 return
 
         for device in device_list:
-            secret = get_creds(chat_id=chat_id, device=device)
+            secret = crypto.pw_decrypt(dev_type='junos', device=device)
             if not secret:
-                return
+                print("Could not get credentials")
+                return False
             thread = threading.Thread(
                 target=reboot,
                 kwargs={
@@ -236,9 +242,10 @@ def nlp_reboot(chat_id, **kwargs):
         # Execute the reboot
         for device in device_list:
             print(f"Rebooting {device} at {dt}")
-            secret = get_creds(chat_id=chat_id, device=device)
+            secret = crypto.pw_decrypt(dev_type='junos', device=device)
             if not secret:
-                return
+                print("Could not get credentials")
+                return False
             thread = threading.Thread(
                 target=reboot,
                 kwargs={
@@ -257,15 +264,3 @@ def nlp_reboot(chat_id, **kwargs):
             )
 
     return
-
-
-# Get passwords required to connect to the device
-def get_creds(chat_id, device):
-    secret = crypto.pw_decrypt(dev_type='junos', device=device)
-    if not secret:
-        teamschat.send_chat(
-            f"I couldn't get a password to connect to {device}",
-            chat_id
-        )
-        return
-    return secret

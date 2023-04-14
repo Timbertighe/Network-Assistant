@@ -1,4 +1,17 @@
 # CloudFlare Plugin Changelog
+## 0.91
+### Webhook Handling
+    Better handling of fields in the webhook
+    Restructured the class for better code flow
+    Better handling of unknown or missing fields in the webhook
+    
+### SQL
+    Added an SQL creation script
+    Added SQL logging of events
+    
+### Bug Fixes
+    Fixed a bug with timestamp handling
+
 ## 0.9
 ### General Improvements
     Improved message colouring in Teams

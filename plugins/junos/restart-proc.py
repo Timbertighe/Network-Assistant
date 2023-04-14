@@ -31,30 +31,24 @@ from core import teamschat
 import threading
 
 
-# Get passwords required to connect to the device
-def get_creds(chat_id, device):
-    secret = crypto.pw_decrypt(dev_type='junos', device=device)
-    if not secret:
-        teamschat.send_chat(
-            f"I couldn't get a password to connect to {device}",
-            chat_id
-        )
-        return
-    return secret
-
-
 # Restart a process on a device
-def restart(device, user, password, process, **kwargs):
+def restart(device, user, password, process, chat_id, **kwargs):
     '''
     Restart a process on a device
     Requires device name, username and password, and a process to restart
     Optionally can pass 'immediately=True' to use SIGKILL
     '''
+
     print(f"Connecting to {device}...")
     if process == 'forwarding':
         print("This will restart the forwarding process")
         print("You will lose access to the device temporarily")
         print("(5+ minutes for small devices)")
+        teamschat.send_chat(
+            "Restarting the forwarding process, \
+                expect disruption for 5+ minutes",
+            chat_id
+        )
 
     # Connect to the device
     try:
@@ -81,11 +75,22 @@ def restart(device, user, password, process, **kwargs):
                     daemon_name=process
                 )
                 print("Restart Initiated (SIGTERM)")
-                print(etree.tostring(result, encoding='unicode'))
+                response = etree.tostring(result, encoding='unicode')
+                response = response.replace("<output>", "")
+                response = response.replace("</output>", "")
+                print(response)
+            teamschat.send_chat(
+                f"{device}: {response}",
+                chat_id
+            )
 
     # Handle Connection error
     except ConnectError as err:
         print(f"There has been a connection error: {err}")
+        teamschat.send_chat(
+            f"Could not connect to {device}",
+            chat_id
+        )
 
     # Handle an RPC error
     except RpcError as err:
@@ -98,19 +103,38 @@ def restart(device, user, password, process, **kwargs):
         elif 'subsystem not running' in str(err):
             print(f"The {process} process cannot be started")
             print("It is not in use on this system")
+            teamschat.send_chat(
+                f"The {process} process cannot be started",
+                chat_id
+            )
 
         # Handle a bad process name
         elif 'invalid daemon' in str(err):
             print(f"The {process} does not exist on this system")
             print("Maybe it's typed incorrectly?")
+            teamschat.send_chat(
+                f"The {process} does not exist on this system \
+                    Is this a typo",
+                chat_id
+            )
 
         # Handle other RPC errors
         else:
             print(f"RPC Error has occurred: {err}")
+            teamschat.send_chat(
+                f"RPC Error has occurred while connecting to {device} \
+                    <br>{err}",
+                chat_id
+            )
 
     # Handle a generic error
     except Exception as err:
         print(f"Error was: {err}")
+        teamschat.send_chat(
+            f"An error has occurred while connecting to {device} \
+                <br>{err}",
+            chat_id
+        )
 
 
 # Process the users phrase in order to restart a process
@@ -136,18 +160,24 @@ def nlp_restart(chat_id, **kwargs):
 
     if len(process) == 0:
         print("I need at least one process to restart")
+        teamschat.send_chat(
+            "I need at least one process to restart",
+            chat_id
+        )
 
     # Restart the processes
     for device in device_list:
-        secret = get_creds(chat_id=chat_id, device=device)
+        secret = crypto.pw_decrypt(dev_type='junos', device=device)
         if not secret:
-            return
+            print("Could not get credentials")
+            return False
 
         args = {
             'device': device,
             'user': secret['user'],
             'password': secret['password'],
             'process': process,
+            'chat_id': chat_id,
         }
 
         # Force restart

@@ -1,5 +1,5 @@
 """
-Creates entries in an SQL database
+Creates and reads entries in an SQL database
 
 Modules:
     3rd Party: pyodbc, termcolor
