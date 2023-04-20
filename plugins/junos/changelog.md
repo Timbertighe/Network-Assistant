@@ -1,4 +1,11 @@
 # Junos Plugin Changelog
+## 0.10
+### General Improvements
+    Added extensive logging as an option
+        This gets the regular JTAC logs, as well as a large number of show commands they can use for troubleshooting
+    Improved the stability of the NETCONF implementation, when sending commands
+
+
 ## 0.9.1
 ### General Improvements
     Improved feedback to users when restarting a device or a process
