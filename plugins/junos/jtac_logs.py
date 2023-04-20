@@ -26,7 +26,9 @@ Exceptions:
 
 Misc Variables:
 
-    None
+    commands : list
+        A list of show and request commands
+        This is used when colleting extensive logs
 
 Limitations:
     Requires NetConf to be enabled on the target device
@@ -48,18 +50,187 @@ from core import crypto
 from config import plugin_list
 
 
+# A list of commands to run
+#   Used when getting extensive logs
+commands = [
+    ('request pfe execute command '
+        '"show arena" target fwdd'),
+    'show system storage',
+    'show system virtual-memory',
+    'show system processes extensive',
+    'show security idp memory',
+    'show chassis routing-engine',
+    'show system processes extensive',
+    'show services application-identification counter',
+    'show security idp counters ips',
+    'show security idp counters memory',
+    'show security idp counters packet',
+    'show security idp counters flow',
+    'show security idp counters tcp-reassembler',
+    'show security idp application-statistics',
+    'show security flow session summary',
+    'show security resource-manager summary',
+    'show security resource-manager resource active',
+    'show security resource-manager group active',
+    'show services application-identification counter',
+    'show services application-identification statistics applications',
+    ('request pfe execute command '
+        '"show arena" target fwdd'),
+    ('request pfe execute command '
+        '"show memory" target fwdd'),
+    ('request pfe execute command '
+        '"show heap 0" target fwdd'),
+    ('request pfe execute command '
+        '"show heap 1" target fwdd'),
+    ('request pfe execute command '
+        '"show heap" target fwdd'),
+    ('request pfe execute command '
+        '"show heap 0 sanity" target fwdd'),
+    ('request pfe execute command '
+        '"show heap 0 accounting pc" target fwdd'),
+    ('request pfe execute command '
+        '"show heap 0 accounting pc size" target fwdd'),
+    ('request pfe execute command '
+        '"show heap 1 accounting pc size" target fwdd'),
+    ('request pfe execute command '
+        '"show usp memory segment shm control objcache jsf summary" '
+        'target fwdd'),
+    ('request pfe execute command '
+        '"show usp memory segment shm data objcache jsf summary" '
+        'target fwdd'),
+    ('request pfe execute command '
+        '"show usp memory segment shm data module" target fwdd'),
+    ('request pfe execute command '
+        '"show usp memory-use all" target fwdd'),
+    ('request pfe execute command '
+        '"show usp memory segment" target fwdd'),
+    ('request pfe execute command '
+        '"show usp memory segment shm" target fwdd'),
+    ('request pfe execute command '
+        '"show usp memory segment shm control module" target fwdd'),
+    ('request pfe execute command '
+        '"show usp memory segment shm control objcache jsf" target fwdd'),
+    ('request pfe execute command '
+        '"show usp memory segment shm data module" target fwdd'),
+    ('request pfe execute command '
+        '"show usp memory segment heap 0" target fwdd'),
+    ('request pfe execute command '
+        '"show usp memory segment shm data objcache service" target fwdd'),
+    ('request pfe execute command '
+        '"show usp memory segment shm data objcache jsf" target fwdd'),
+    ('request pfe execute command '
+        '"show usp memory segment heap modules" target fwdd'),
+    ('request pfe execute command '
+        '"show usp memory segment detail" target fwdd'),
+    ('request pfe execute command '
+        '"show usp idp status" target fwdd'),
+    ('request pfe execute command '
+        '"show usp idp context stats" target fwdd'),
+    ('request pfe execute command '
+        '"show usp idp context hits" target fwdd'),
+    ('request pfe execute command '
+        '"show usp idp memdebug" target fwdd'),
+    ('request pfe execute command '
+        '"show usp idp memory" target fwdd'),
+    ('request pfe execute command '
+        '"show usp idp debug-counter action" target fwdd'),
+    ('request pfe execute command '
+        '"show usp idp debug-counter memory" target fwdd'),
+    ('request pfe execute command '
+        '"show usp algs ftp stats" target fwdd'),
+    ('request pfe execute command '
+        '"show usp asl stats all" target fwdd'),
+    ('request pfe execute command '
+        '"show usp jsf tcp stats" target fwdd'),
+    ('request pfe execute command '
+        '"show usp jsf counters" target fwdd'),
+    ('request pfe execute command '
+        '"show usp jsf counters junos-alg" target fwdd'),
+    ('request pfe execute command '
+        '"show usp jsf flow stats" target fwdd'),
+    ('request pfe execute command '
+        '"show usp jsf jbuf_pool stats" target fwdd'),
+    ('request pfe execute command '
+        '"show usp jsf plugin-list" target fwdd'),
+    ('request pfe execute command '
+        '"show usp jsf plugins" target fwdd'),
+    ('request pfe execute command '
+        '"show usp flow session summary" target fwdd'),
+    ('request pfe execute command '
+        '"show usp flow counters all" target fwdd'),
+    ('request pfe execute command '
+        '"show usp flow stats" target fwdd'),
+    ('request pfe execute command '
+        '"show usp flow counter all" target fwdd'),
+    ('request pfe execute command '
+        '"show usp gate all" target fwdd'),
+    ('request pfe execute command '
+        '"show usp gate statistics" target fwdd'),
+    ('request pfe execute command '
+        '"show usp appfw statistic" target fwdd'),
+    ('request pfe execute command '
+        '"show usp appfw counter" target fwdd'),
+    ('request pfe execute command '
+        '"show usp appid config" target fwdd'),
+    ('request pfe execute command '
+        '"show usp appid thread status" target fwdd'),
+    ('request pfe execute command '
+        '"show usp plugins" target fwdd'),
+    ('request pfe execute command '
+        '"show piles" target fwdd'),
+    ('request pfe execute command '
+        '"show mbuf host" target fwdd'),
+    ('request pfe execute command '
+        '"show mbuf counters" target fwdd'),
+    ('request pfe execute command '
+        '"show service objcache" target fwdd'),
+    ('request pfe execute command '
+        '"plugin jdpi show configuration tunables" target fwdd'),
+    ('request pfe execute command '
+        '"show jsf shm module" target fwdd'),
+    ('request pfe execute command '
+        '"show jsf objcache" target fwdd'),
+    ('request pfe execute command '
+        '"show jsf shm module" target fwdd'),
+    ('request pfe execute command '
+        '"show jsf objcache" target fwdd'),
+    ('request pfe execute command '
+        '"show usp jsf counters" target fwdd'),
+    ('request pfe execute command '
+        '"show usp flow counters all" target fwdd'),
+    ('request pfe execute command '
+        '"show service objcache" target fwdd'),
+    ('request pfe execute command '
+        '"show jsf objcache" target fwdd'),
+    ('request pfe execute command '
+        '"show usp memory segment detail" target fwdd'),
+    ('request pfe execute command '
+        '"show usp memory segment shm data objcache services" target fwdd'),
+    ('request pfe execute command '
+        '"show usp memory segment shm data objcache jsf" target fwdd'),
+    ('request pfe execute command '
+        '"show piles" target fwdd'),
+    ('request pfe execute command '
+        '"show usp jsf jbuf_pool stats" target fwdd'),
+    ('request pfe execute command '
+        '"show usp memory segment shm data module" target fwdd')
+]
+
+
 def get_logs(chat_id, **kwargs):
     '''
     Extracts details from the users request, such as device name
 
-        Parameters:
-            chat_id : str
-                The chat ID to report back to
-            kwargs : list
-                Additional details, such as device names
+    Parameters:
+        chat_id : str
+            The chat ID to report back to
+        kwargs['ents'] : list
+            A list of NLP entities
+        kwargs['message'] : str
+            The original message the user sent
 
-        Returns:
-            None
+    Returns:
+        None
     '''
 
     # Look through kwargs to find a device name
@@ -78,12 +249,21 @@ def get_logs(chat_id, **kwargs):
             chat_id
         )
 
-        # Start a thread calling get_rsi()
-        #   This is the part that does the work on the device
-        thread = threading.Thread(
-            target=get_rsi,
-            args=(device, chat_id,)
-        )
+        # If we need extensive logging
+        if 'extensive' in kwargs['message']:
+            thread = threading.Thread(
+                target=extensive_logs,
+                args=(device, chat_id,)
+            )
+
+        # Regular logging
+        else:
+            thread = threading.Thread(
+                target=get_rsi,
+                args=(device, chat_id,)
+            )
+
+        # Start the thread
         thread.start()
 
     # If there's no valid device name, we can't proceed
@@ -268,6 +448,148 @@ def get_rsi(host, chat_id):
     teamschat.send_chat(
         f"All done! The logs are here:<br> \
             <span style=\"color:Yellow\">{ftp_file}</span>",
+        chat_id
+    )
+    dev.close()
+
+    return True
+
+
+def extensive_logs(host, chat_id):
+    '''
+    Connect to a junos device to get detailed logs
+
+    This collects more logs than the get_rsi() function
+    This is typically used for more extensive troubleshooting
+
+    (1) Generate system logs
+
+    Parameters:
+        host : str
+            The hostname to connect to
+        chat_id : str
+            The chat ID to report back to
+
+    Returns:
+        True : bool
+            If successful
+        False : bool
+            If there was a problem
+    '''
+
+    print(termcolor.colored("Getting extensive logs (20-25 minutes)", "green"))
+    teamschat.send_chat(
+        "This many logs will take 10-15 minutes to collect",
+        chat_id
+    )
+
+    # Get regular logs
+    get_rsi(host, chat_id)
+
+    # Get passwords required to connect to the device
+    secret = crypto.pw_decrypt(dev_type='junos', device=host)
+    if not secret:
+        teamschat.send_chat(
+            f"I couldn't get a password to connect to {host}",
+            chat_id
+        )
+        return False
+
+    # Connect to the Junos device; Should return a connection object
+    # If the returned object is not right, handle the error
+    dev = netconf.junos_connect(host, secret['user'], secret['password'])
+    if not isinstance(dev, jnpr.junos.device.Device):
+        netconf.error_handler(err=dev, dev=dev, chat_id=chat_id)
+        return False
+
+    # Get extra details for filenames
+    hostname = dev.facts['hostname']
+    date = str(datetime.date.today())
+
+    teamschat.send_chat(
+        "Now to get all the show commands...",
+        chat_id
+    )
+
+    # Create a new directory for the logs to go in
+    netconf.send_shell(
+        'file delete-directory /var/log/extensive recurse',
+        dev
+    )
+    netconf.send_shell(
+        'file make-directory /var/log/extensive',
+        dev
+    )
+
+    # Generate a separate log file in /var/log/extensive for each command
+    #   The command is inserted into the filename
+    for command in commands:
+        tidy_command = command.replace("\"", "")
+        tidy_command = tidy_command.replace(" ", "_")
+        filename = f'/var/log/extensive/{tidy_command}.txt'
+
+        # Run the command, and write the results to the filename
+        try:
+            result = netconf.send_shell(f'{command} | save {filename}', dev)
+        except Exception as err:
+            print(termcolor.colored(
+                f"Could not run {command} on {hostname}",
+                "red"
+            ))
+            print(termcolor.colored(err, "red"))
+
+        # Handle any errors
+        if not isinstance(result, str):
+            netconf.error_handler(err=result, dev=dev, chat_id=chat_id)
+            return False
+
+    # Create an archive of logs
+    log_filename = f'/var/tmp/extensive_logs-{hostname}-{date}.tgz'
+    print(termcolor.colored(f'Archive filename: {log_filename}', 'green'))
+    teamschat.send_chat(
+        f"Archving logs to {log_filename}",
+        chat_id
+    )
+
+    result = netconf.send_shell(
+        f'file archive compress source /var/log/* destination {log_filename}',
+        dev
+    )
+
+    if not isinstance(result, str):
+        netconf.error_handler(err=result, dev=dev, chat_id=chat_id)
+        return False
+
+    # Upload the archive to an FTP server
+    ftp = get_ftp(chat_id)
+
+    # Check for a valid result, and build filenames
+    if ftp:
+        ftp_url = ftp['full_path']
+        ftp_server = ftp['redacted_path']
+        ftp_file = f'{ftp_server}Support-{hostname}-{date}.tgz'
+
+    else:
+        return False
+
+    # Copy the archive to FTP
+    #   Sometimes the junos device mangles this string,
+    #   so it should be manually encoded as ASCII
+    result = netconf.send_shell(
+        (
+            f'{log_filename} {ftp_url}'
+        ).encode('ascii'),
+        dev
+    )
+
+    if 'not' in result.lower():
+        netconf.error_handler(err=result, dev=dev, chat_id=chat_id)
+        return False
+
+    # Gracefully close the device
+    print(termcolor.colored(f"Extensive logs are at {ftp_file}", "green"))
+    teamschat.send_chat(
+        f"You can find your logs at {ftp_file}",
         chat_id
     )
     dev.close()
