@@ -56,6 +56,7 @@ event-script {
 ### Get Logs
     The jtac-logs.py file has functions to build an RSI file, archive logs, and upload to FTP
     This is always required by JTAC when logging a ticket
+    Add 'extensive' to get a TON more logs from show commands (required for complicated tickets); Takes over 20 minutes to run
     
 ### Reboot Devices
     The reboot.py file has functions to get user NLP phrases, and determine when to reboot a device (or devices)
