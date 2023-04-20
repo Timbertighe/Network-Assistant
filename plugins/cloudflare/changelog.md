@@ -1,4 +1,9 @@
 # CloudFlare Plugin Changelog
+## 0.10
+### Bug fixes
+    Fixed a bug where timestamps couldn't be extracted
+
+
 ## 0.91
 ### Webhook Handling
     Better handling of fields in the webhook
@@ -11,6 +16,7 @@
     
 ### Bug Fixes
     Fixed a bug with timestamp handling
+
 
 ## 0.9
 ### General Improvements
