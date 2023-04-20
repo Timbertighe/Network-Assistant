@@ -133,6 +133,11 @@ class CloudFlareHandler(plugin.PluginTemplate):
             timestamp = timestamp.strftime("%H:%M:%S")
 
         elif 'time' in json['data']:
+            print(termcolor.colored(
+                f"CloudFlare raw timestamp: {json['data']['time']}",
+                "cyan"
+            ))
+
             timestamp = parse(json['data']['time'])
             timestamp = timestamp.astimezone(timezone(str(get_localzone())))
             timestamp = timestamp.strftime("%H:%M:%S")
@@ -229,7 +234,7 @@ class CloudFlareHandler(plugin.PluginTemplate):
         print(termcolor.colored(f"CloudFlare Alert: {alert}", "yellow"))
 
         # Reformat the timestamp to make it nicer
-        timestamp = self.timestamp(alert)
+        timestamp = self.timestamp(raw_response)
 
         # Extract fields from the webhook
         fields = self.fields(alert)
