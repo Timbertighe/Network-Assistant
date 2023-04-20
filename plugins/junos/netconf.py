@@ -44,7 +44,7 @@ def send_shell(cmd, dev):
     print(termcolor.colored(cmd, "yellow"))
 
     # Convert the raw junos command to something the API can work with
-    command = f'cli -c "{cmd}"'
+    command = f'cli -c \'{cmd}\''
 
     # Connect to the device shell (for sending CLI commands)
     try:
