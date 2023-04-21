@@ -1,38 +1,94 @@
 """
-Provides class templates for plugins
+Plugin template class
 
-Usage:
-    import this module into a plugins file
-    When creating a class for the plugin,
-        inherit the class here to get some predefined functionality
-        eg:
-            class MyPlugin(plugin.PluginTemplate):
-                def __init__(self):
-                    super().__init__(LOCATION)
+Modules:
+    3rd Party: yaml, socket, struct, termcolor
+    Custom: core/sql, core/hash
 
-Authentication:
-    N/A
+Classes:
 
-Restrictions:
-    TBA
+    PluginTemplate
+        Template class for plugins
 
-To Do:
+Functions
+
+    None
+
+Exceptions:
+
+    None
+
+Misc Variables:
+
+    None
+
+Limitations/Requirements:
     None
 
 Author:
-    Luke Robertson - March 2023
+    Luke Robertson - April 2023
 """
+
 
 import yaml
 import socket
 import struct
 import termcolor
+
 from core import sql, hash
 
 
 class PluginTemplate():
+    """A tmeplate class for plugins
+
+    Plugins inherit this class to use its functions
+    Any methods here can be superseeded by the plugin class
+
+    Attributes
+    ----------
+    None
+
+    Methods
+    -------
+    ip2integer()
+        Convert an IP address to an integer
+        This is so it can be written to SQL
+
+    refresh()
+        Refresh the plugins config file
+
+    sql_write()
+        Write entries to an SQL table
+
+    authenticate()
+        Authenticate a webhook
+    """
+
     # Initialise the class and read the YAML file
     def __init__(self, location):
+        """Constructs the class
+
+        Setup default variables and load the config file
+        Setup webhook authentication
+
+        Parameters
+        ----------
+        location : str
+            Location of the plugin's config file
+
+        Raises
+        ------
+        Exception
+            If there were problems loading the config file
+
+        Exception
+            If an auth header is not used by this plugin
+
+        Returns
+        -------
+        None
+        """
+
         # Default variables
         self.config = {}
         self.alert_levels = {}
@@ -64,19 +120,47 @@ class PluginTemplate():
 
     # Convert an IPv4 address to an integer
     def ip2integer(self, ip):
+        """Converts an IP address to a long integer
+
+        Parameters
+        ----------
+        ip : str
+            The IP address to convert
+
+        Raises
+        ------
+        None
+
+        Returns
+        -------
+         : str
+            The string in a long integer format
         """
-        Convert an IP string to long integer
-        """
+
         ip = ip.split(",")[0]
-        # print(termcolor.colored(f"DEBUG: IP Address: {ip}", "red"))
         packedIP = socket.inet_aton(ip)
         return struct.unpack("!L", packedIP)[0]
 
     # Refresh the plugin's config file
     def refresh(self):
+        """Reread the config file for changes
+
+        Parameters
+        ----------
+        none
+
+        Raises
+        ------
+        Exception
+            If the config file could not be opened
+
+        Returns
+        -------
+         : bool
+            True if there was no error
+            False if there was an error
         """
-        Re-read the config file as needed
-        """
+
         with open(self.location) as config:
             try:
                 self.config = yaml.load(config, Loader=yaml.FullLoader)
@@ -91,13 +175,55 @@ class PluginTemplate():
                 print(err)
                 return False
 
+        return True
+
     # Write to an SQL database
     def sql_write(self, database, fields):
+        """Write information to a database
+
+        Parameters
+        ----------
+        database : str
+            The database table to write to
+
+        fields : dict
+            Fields to write to the table
+
+        Raises
+        ------
+        Exception
+            If the SQL class couldn't be created
+
+        Exception
+            If the fields couldn't be written to SQL
+
+        Returns
+        -------
+         : bool
+            True if there was no error
+            False if there was an error
         """
-        Write fields to the SQL server
-        """
-        sql_conn = sql.Sql()
-        sql_conn.add(database, fields)
+
+        # Create an SQL connection object
+        try:
+            sql_conn = sql.Sql()
+        except Exception as err:
+            print(termcolor.colored(
+                f"An error occurred instantiating the SQL object: {err}",
+                "red"
+            ))
+            return False
+
+        try:
+            sql_conn.add(database, fields)
+        except Exception as err:
+            print(termcolor.colored(
+                f"An error occurred writing to SQL: {err}",
+                "red"
+            ))
+            return False
+
+        return True
 
     # Check webhook authentication
     def authenticate(self, request, plugin):
