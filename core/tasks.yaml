@@ -1,0 +1,29 @@
+---
+# Note: indendentation is important
+# Verify formatting here: https://yaml-online-parser.appspot.com/
+
+# Scheduled tasks
+cha_logs_1:
+  day_of_week: 'mon-fri'
+  hour: 10
+  minute: 00
+  second: 0
+  plugin: 'junos'
+  module: 'jtac_logs'
+  func: 'extensive_logs'
+  args:
+    - host: 'Router-1'
+    - chat_id: 'xx:xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx@unq.gbl.spaces'
+
+cha_logs_2:
+  day_of_week: 'mon-fri'
+  hour: 15
+  minute: 0
+  second: 0
+  plugin: 'junos'
+  module: 'jtac_logs'
+  func: 'extensive_logs'
+  args:
+    - host: 'Router-1'
+    - chat_id: 'xx:xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx@unq.gbl.spaces'
+
