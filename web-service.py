@@ -36,12 +36,14 @@ Author:
 from core import azureauth
 from core import crypto
 from core import teamschat
+from core import schedule_tasks
 from nlp import nlp
 
 from config import GLOBAL, GRAPH, TEAMS
 from config import PLUGINS, plugin_list
 
 from flask import Flask, request, Response
+from flask_apscheduler import APScheduler
 import importlib
 import termcolor
 from urllib.parse import urlparse, parse_qs
@@ -96,6 +98,9 @@ APPROVED_LIST = TEAMS['approved_ids']
 
 # Initialise a Flask app
 app = Flask(__name__)
+scheduler = APScheduler()
+scheduler.init_app(app)
+schedule_tasks.sched_tasks(scheduler)
 
 
 # Setup the handler objects
@@ -141,7 +146,7 @@ def callback():
         return ('Thankyou for authenticating, this window can be closed')
 
 
-# Mist web service - Listens for webhooks
+# Listen for webhooks
 @app.route('/<handler>', methods=['POST'])
 def webhook_handler(handler):
     # Get the source IP - Use X-Forwarded-For header if it's available
@@ -245,4 +250,5 @@ def chat():
 
 # Start the Flask app
 if __name__ == '__main__':
+    scheduler.start()
     app.run(debug=GLOBAL['flask_debug'], host='0.0.0.0', port=WEB_PORT)
