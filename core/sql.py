@@ -147,6 +147,10 @@ class Sql():
                         f"SQL execution error: {err}",
                         "red"
                     ))
+                    print(termcolor.colored(
+                        f"attempted to write:\n{fields}",
+                        "cyan"
+                    ))
 
                     teamschat.send_chat(
                         "An error has occurred while writing to SQL",
