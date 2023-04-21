@@ -1,4 +1,4 @@
-# chatbot
+# Network Assistant
 A simple Network assistant that takes alerts and events, and sends them to teams
 
 
