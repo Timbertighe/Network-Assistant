@@ -153,7 +153,7 @@ class Sql():
                     ))
 
                     teamschat.send_chat(
-                        "An error has occurred while writing to SQL",
+                        f"An error has occurred while writing to SQL: {err}",
                         GRAPH['chat_id']
                     )
 
