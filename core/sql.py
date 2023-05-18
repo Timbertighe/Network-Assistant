@@ -151,7 +151,10 @@ class Sql():
                         f"attempted to write:\n{fields}",
                         "cyan"
                     ))
-
+                    print(termcolor.colored(
+                        f"attempted SQL string:\n{sql_string}",
+                        "cyan"
+                    ))
                     teamschat.send_chat(
                         f"An error has occurred while writing to SQL: {err}",
                         GRAPH['chat_id']
